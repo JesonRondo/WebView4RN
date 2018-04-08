@@ -26,30 +26,28 @@ export default class App extends Component {
     super(props);
 
     this.state = {
-      startPage: ''
+      startPage: props.startPage,
+      title: ''
     };
   }
 
-  componentWillMount () {
-    const nativeEventListener = DeviceEventEmitter.addListener('WebViewLoadRequest',
-      e => {
-        console.log('native Emit');
-        console.log(e);
-        this.setState({
-          url: e.url
-        });
-    })
+  webViewLoadStart() {
+    this.setState({
+      title: 'Loading...'
+    });
   }
 
   render() {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTxt}>百度一下</Text>
+          <Text style={styles.headerTxt}>{ this.state.title }</Text>
         </View>
         <WebView
-          source={{uri: 'http://h5.zywawa.com/shared_room/shared_room.html?wawaid=410&romid=438&from=singlemessage'}}
+          source={{uri: this.state.startPage}}
           style={styles.content}
+          onLoadStart={this.webViewLoadStart.bind(this)}
+          injectedJavaScript={'alert(document.title);'}
         />
       </View>
     );
@@ -67,7 +65,7 @@ const styles = StyleSheet.create({
     height: 60
   },
   headerTxt: {
-    fontSize: 14
+    fontSize: 18
   },
   content: {
     flex: 1

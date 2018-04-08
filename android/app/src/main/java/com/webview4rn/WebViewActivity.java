@@ -44,21 +44,12 @@ public class WebViewActivity extends AppCompatActivity {
                 .setUseDeveloperSupport(BuildConfig.DEBUG)
                 .setInitialLifecycleState(LifecycleState.RESUMED)
                 .build();
-        mReactRootView.startReactApplication(mReactInstanceManager, "WebView4RN", null);
+
+        String url = getIntent().getStringExtra("url");
+        Bundle bundle = new Bundle();
+        bundle.putString("startPage", url);
+        mReactRootView.startReactApplication(mReactInstanceManager, "WebView4RN", bundle);
         setContentView(mReactRootView);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    protected void sendEvent(String eventName, @Nullable WritableMap params) {
-        if (mReactInstanceManager != null) {
-            mReactInstanceManager.getCurrentReactContext()
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                    .emit(eventName, params);
-        }
     }
 
     @Override
@@ -88,13 +79,6 @@ public class WebViewActivity extends AppCompatActivity {
 
         if (mReactInstanceManager != null) {
             mReactInstanceManager.onHostResume(this);
-
-
-
-            String url = getIntent().getStringExtra("url");
-            WritableMap params = Arguments.createMap();
-            params.putString("url", url);
-            sendEvent("WebViewLoadRequest", params);
         }
     }
 
