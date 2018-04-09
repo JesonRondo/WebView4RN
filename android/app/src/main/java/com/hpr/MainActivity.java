@@ -1,4 +1,4 @@
-package com.webview4rn;
+package com.hpr;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -16,12 +16,12 @@ public class MainActivity extends Activity {
         findViewById(R.id.jump_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = "";
+                String url = "https://baidu.com"; // default
                 EditText editText = (EditText) findViewById(R.id.webUrl);
-                url = editText.getText().toString();
+                String selectUrl = editText.getText().toString();
 
-                if (url == "") {
-                    url = "https://baidu.com"; // default
+                if (selectUrl != "") {
+                    url = selectUrl;
                 }
 
                 Intent intent = new Intent(MainActivity.this, WebViewActivity.class);

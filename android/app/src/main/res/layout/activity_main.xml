@@ -26,7 +26,7 @@
             android:layout_weight="1"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="http://h5.zywawa.com/shared_room/shared_room.html?wawaid=410&amp;romid=438" />
+            android:text="https://baidu.com" />
     </LinearLayout>
 
     <Button
