@@ -63,8 +63,6 @@ function createEventBus() {
     return { addEventListener: addEventListener, removeEventListener: removeEventListener, emitEvent: emitEvent };
 }
 
-// export const GlobalEventBus = createEventBus()
-
 var classCallCheck = function (instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -108,8 +106,8 @@ function createMessager(sendHandler) {
     var needWait = [];
     var eventBus = createEventBus();
     var transactions = {};
-    var callbacks = {}; // 
-    var fn = {}; // all other side functions
+    var callbacks = {}; 
+    var fn = {};
 
     function isConnect() {
         return !needWait;
@@ -135,7 +133,7 @@ function createMessager(sendHandler) {
 
     /** sender parts */
     function sender(data) {
-        var force = data.command === SYNC_COMMAND; // force send the message when the message is the sync message
+        var force = data.command === SYNC_COMMAND;
         if (!force && needWait) {
             needWait.push(data);
         } else {
@@ -170,7 +168,6 @@ function createMessager(sendHandler) {
         sender(data);
     }
 
-    /** listener parts */
     function listener(data) {
         if (data.reply) {
             var _key2 = getTransactionKey(data);
