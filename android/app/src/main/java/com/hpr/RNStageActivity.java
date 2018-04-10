@@ -25,7 +25,7 @@ import java.util.List;
  * Created by me2 on 2018/4/9.
  */
 
-public class BaseRNActivity extends Activity {
+public class RNStageActivity extends Activity {
     private static final int OVERLAY_PERMISSION_REQ_CODE = 1235;
 
     private CameraModuleReactPackage mCameraModuleReactPackage;
@@ -33,29 +33,30 @@ public class BaseRNActivity extends Activity {
     public ReactRootView mReactRootView;
     public ReactInstanceManager mReactInstanceManager;
 
-    public String bundleAssetsName;
-    public String jsMainModulePath;
-    public String moduleName;
-    public Bundle initialProperties;
+    private String bundleAssetsName;
+    private String jsMainModulePath;
+    private String moduleName;
+    private Bundle initialProperties;
 
-    public BaseRNActivity (String appName) {
+    /**
+     * intent 打开用，extra 需要传 AppName、InitProps
+     */
+    public RNStageActivity() {
         // default
-        setBundleAssetsName("index.bundle");
-        setJsMainModulePath("src/entry/index");
-        setModuleName(appName);
-        setInitialProperties(null);
+        bundleAssetsName = "index.bundle";
+        jsMainModulePath = "src/entry/index";
+
+        moduleName = "EmptyApp";
+        initialProperties = null;
     }
 
-    public void setBundleAssetsName(String bundleAssetsName) {
-        this.bundleAssetsName = bundleAssetsName;
-    }
+    public RNStageActivity(String appName, @Nullable Bundle initialProps) {
+        // default
+        bundleAssetsName = "index.bundle";
+        jsMainModulePath = "src/entry/index";
 
-    public void setJsMainModulePath(String jsMainModulePath) {
-        this.jsMainModulePath = jsMainModulePath;
-    }
-
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
+        moduleName = appName;
+        initialProperties = initialProps;
     }
 
     public void setInitialProperties(Bundle initialProperties) {
@@ -94,6 +95,23 @@ public class BaseRNActivity extends Activity {
     }
 
     /**
+     * 解析参数
+     */
+    private void parseParams() {
+        Intent intent = getIntent();
+
+        String appName = intent.getStringExtra("AppName");
+        if (appName != null) {
+            moduleName = appName;
+        }
+
+        Bundle initialProps = intent.getBundleExtra("InitProps");
+        if (initialProps != null) {
+            initialProperties = initialProps;
+        }
+    }
+
+    /**
      * 初始化 React Application
      */
     private void initReactApplication() {
@@ -107,16 +125,8 @@ public class BaseRNActivity extends Activity {
                 .setInitialLifecycleState(LifecycleState.RESUMED)
                 .build();
 
-        setContentView(mReactRootView);
-
-        mReactInstanceManager.showDevOptionsDialog();
-    }
-
-    /**
-     * 开始 React Application
-     */
-    private void startReactApplication() {
         mReactRootView.startReactApplication(mReactInstanceManager, moduleName, initialProperties);
+        setContentView(mReactRootView);
     }
 
     /**
@@ -136,11 +146,13 @@ public class BaseRNActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // 获取需要的权限
         getPermission();
-
+        // 解析intent参数
+        parseParams();
+        // 初始化
         initReactApplication();
-        startReactApplication();
-
+        // 注册开发快捷键
         initDevShortcut();
     }
 

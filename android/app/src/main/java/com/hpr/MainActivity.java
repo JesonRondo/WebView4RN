@@ -1,8 +1,8 @@
 package com.hpr;
 
-public class MainActivity extends BaseRNActivity {
+public class MainActivity extends RNStageActivity {
 
-    public MainActivity () {
-        super("ExampleHomeApp");
+    public MainActivity() {
+        super("ExampleHomeApp", null);
     }
 }
