@@ -10,8 +10,7 @@ import {
   StyleSheet,
   Text,
   View,
-  WebView,
-  DeviceEventEmitter
+  WebView
 } from 'react-native';
 import createInvoke from 'react-native-webview-invoke/native';
 
@@ -294,7 +293,7 @@ export default class App extends Component {
         </View>
         <WebView
           ref={webview => this.webview = webview}
-          source={{uri: this.props.startPage || 'https://m.baidu.com'}}
+          source={{uri: this.props.startPage || 'about:blank'}}
           style={styles.content}
           onLoadStart={this.webViewLoadStart.bind(this)}
           onMessage={this.invoke.listener}

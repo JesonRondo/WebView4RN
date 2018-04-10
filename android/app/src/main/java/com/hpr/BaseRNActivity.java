@@ -11,9 +11,15 @@ import android.view.KeyEvent;
 import android.webkit.WebView;
 
 import com.facebook.react.ReactInstanceManager;
+import com.facebook.react.ReactPackage;
 import com.facebook.react.ReactRootView;
 import com.facebook.react.common.LifecycleState;
 import com.facebook.react.shell.MainReactPackage;
+import com.hpr.module.CameraModuleReactPackage;
+import com.hpr.module.NavigationModuleReactPackage;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by me2 on 2018/4/9.
@@ -21,8 +27,40 @@ import com.facebook.react.shell.MainReactPackage;
 
 public class BaseRNActivity extends Activity {
     private static final int OVERLAY_PERMISSION_REQ_CODE = 1235;
+
+    private CameraModuleReactPackage mCameraModuleReactPackage;
+
     public ReactRootView mReactRootView;
     public ReactInstanceManager mReactInstanceManager;
+
+    public String bundleAssetsName;
+    public String jsMainModulePath;
+    public String moduleName;
+    public Bundle initialProperties;
+
+    public BaseRNActivity (String appName) {
+        // default
+        setBundleAssetsName("index.bundle");
+        setJsMainModulePath("src/entry/index");
+        setModuleName(appName);
+        setInitialProperties(null);
+    }
+
+    public void setBundleAssetsName(String bundleAssetsName) {
+        this.bundleAssetsName = bundleAssetsName;
+    }
+
+    public void setJsMainModulePath(String jsMainModulePath) {
+        this.jsMainModulePath = jsMainModulePath;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
+    public void setInitialProperties(Bundle initialProperties) {
+        this.initialProperties = initialProperties;
+    }
 
     /**
      * 获取权限
@@ -43,15 +81,28 @@ public class BaseRNActivity extends Activity {
     }
 
     /**
+     * 获取包
+     */
+    private List<ReactPackage> getPackages() {
+        mCameraModuleReactPackage = new CameraModuleReactPackage();
+
+        return Arrays.<ReactPackage>asList(
+                new MainReactPackage(),
+                new NavigationModuleReactPackage(),
+                mCameraModuleReactPackage
+        );
+    }
+
+    /**
      * 初始化 React Application
      */
-    protected void initReactApplication() {
+    private void initReactApplication() {
         mReactRootView = new ReactRootView(this);
         mReactInstanceManager = ReactInstanceManager.builder()
                 .setApplication(getApplication())
-                .setBundleAssetName("index.bundle")
-                .setJSMainModulePath("index")
-                .addPackage(new MainReactPackage())
+                .setBundleAssetName(bundleAssetsName)
+                .setJSMainModulePath(jsMainModulePath)
+                .addPackages(getPackages())
                 .setUseDeveloperSupport(BuildConfig.DEBUG)
                 .setInitialLifecycleState(LifecycleState.RESUMED)
                 .build();
@@ -64,8 +115,8 @@ public class BaseRNActivity extends Activity {
     /**
      * 开始 React Application
      */
-    protected void startReactApplication() {
-        mReactRootView.startReactApplication(mReactInstanceManager, "WebView4RN", null);
+    private void startReactApplication() {
+        mReactRootView.startReactApplication(mReactInstanceManager, moduleName, initialProperties);
     }
 
     /**
@@ -91,8 +142,6 @@ public class BaseRNActivity extends Activity {
         startReactApplication();
 
         initDevShortcut();
-
-
     }
 
     @Override
@@ -102,6 +151,12 @@ public class BaseRNActivity extends Activity {
                 if (!Settings.canDrawOverlays(this)) {
                     // SYSTEM_ALERT_WINDOW permission not granted...
                 }
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+
+            if (mCameraModuleReactPackage != null) {
+                mCameraModuleReactPackage.handleActivityResult(requestCode, resultCode, data);
             }
         }
     }
