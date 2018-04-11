@@ -12,6 +12,9 @@ import {
   View,
   WebView
 } from 'react-native';
+import {
+  Navigation
+} from 'component';
 import createInvoke from 'react-native-webview-invoke/native';
 
 const instructions = Platform.select({
@@ -288,9 +291,7 @@ export default class App extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTxt}>{ this.state.title }</Text>
-        </View>
+        <Navigation title={this.state.title} />
         <WebView
           ref={webview => this.webview = webview}
           source={{uri: this.props.startPage || 'about:blank'}}
@@ -308,15 +309,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5FCFF',
-  },
-  header: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    height: 48
-  },
-  headerTxt: {
-    fontSize: 16
   },
   content: {
     flex: 1

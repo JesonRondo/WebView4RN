@@ -10,11 +10,12 @@ import {
   StyleSheet,
   Text,
   View,
-  Image,
   Button,
-  TextInput,
-  TouchableOpacity
+  TextInput
 } from 'react-native';
+import {
+  Icon
+} from 'component';
 
 import HPR from 'bridge';
 
@@ -56,13 +57,12 @@ export default class App extends Component {
           <View style={styles.line}>
             <TextInput
               style={styles.input}
-              placeholder={'wantna a url to open it!'}
+              placeholder="wantna a url to open it!"
               defaultValue={this.state.url}
               onChangeText={this.setURL.bind(this)} />
-            <TouchableOpacity
-              onPress={this.openScaner.bind(this)}>
-              <Image style={styles.icon} source={require("./assets/scan.png")} />
-            </TouchableOpacity>
+            <Icon
+              type="scan"
+              onPress={this.openScaner.bind(this)} />
           </View>
         </View>
         <Button
@@ -97,9 +97,5 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-  },
-  icon: {
-    width: 26,
-    height: 26
   }
 });

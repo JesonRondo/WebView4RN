@@ -11,15 +11,8 @@ import android.view.KeyEvent;
 import android.webkit.WebView;
 
 import com.facebook.react.ReactInstanceManager;
-import com.facebook.react.ReactPackage;
 import com.facebook.react.ReactRootView;
-import com.facebook.react.common.LifecycleState;
-import com.facebook.react.shell.MainReactPackage;
-import com.hpr.module.camera.CameraModuleReactPackage;
-import com.hpr.module.navigation.NavigationModuleReactPackage;
-
-import java.util.Arrays;
-import java.util.List;
+import com.hpr.core.RNAppManager;
 
 /**
  * Created by me2 on 2018/4/9.
@@ -28,13 +21,8 @@ import java.util.List;
 public class RNStageActivity extends Activity {
     private static final int OVERLAY_PERMISSION_REQ_CODE = 1235;
 
-    private CameraModuleReactPackage mCameraModuleReactPackage;
-
     public ReactRootView mReactRootView;
-    public ReactInstanceManager mReactInstanceManager;
 
-    private String bundleAssetsName;
-    private String jsMainModulePath;
     private String moduleName;
     private Bundle initialProperties;
 
@@ -42,10 +30,6 @@ public class RNStageActivity extends Activity {
      * intent 打开用，extra 需要传 AppName、InitProps
      */
     public RNStageActivity() {
-        // default
-        bundleAssetsName = "index.bundle";
-        jsMainModulePath = "src/entry/index";
-
         moduleName = "EmptyApp";
         initialProperties = null;
     }
@@ -56,10 +40,6 @@ public class RNStageActivity extends Activity {
      * @param initialProps
      */
     public RNStageActivity(String appName, @Nullable Bundle initialProps) {
-        // default
-        bundleAssetsName = "index.bundle";
-        jsMainModulePath = "src/entry/index";
-
         moduleName = appName;
         initialProperties = initialProps;
     }
@@ -83,19 +63,6 @@ public class RNStageActivity extends Activity {
     }
 
     /**
-     * 获取包
-     */
-    private List<ReactPackage> getPackages() {
-        mCameraModuleReactPackage = new CameraModuleReactPackage();
-
-        return Arrays.<ReactPackage>asList(
-                new MainReactPackage(),
-                new NavigationModuleReactPackage(),
-                mCameraModuleReactPackage
-        );
-    }
-
-    /**
      * 解析参数
      */
     private void parseParams() {
@@ -116,17 +83,15 @@ public class RNStageActivity extends Activity {
      * 初始化 React Application
      */
     private void initReactApplication() {
-        mReactRootView = new ReactRootView(this);
-        mReactInstanceManager = ReactInstanceManager.builder()
-                .setApplication(getApplication())
-                .setBundleAssetName(bundleAssetsName)
-                .setJSMainModulePath(jsMainModulePath)
-                .addPackages(getPackages())
-                .setUseDeveloperSupport(BuildConfig.DEBUG)
-                .setInitialLifecycleState(LifecycleState.RESUMED)
-                .build();
+        if (null == RNAppManager.getInstance().getApplication()) {
+            RNAppManager.getInstance().setApplication(getApplication());
+        }
 
-        mReactRootView.startReactApplication(mReactInstanceManager, moduleName, initialProperties);
+        mReactRootView = new ReactRootView(this);
+        mReactRootView.startReactApplication(
+                RNAppManager.getInstance().getReactInstanceManager(),
+                moduleName,
+                initialProperties);
         setContentView(mReactRootView);
     }
 
@@ -138,7 +103,10 @@ public class RNStageActivity extends Activity {
         listener.setOnShakeListener(new ShakeListener.OnShakeListener() {
             @Override
             public void onShake() {
-                mReactInstanceManager.showDevOptionsDialog();
+                ReactInstanceManager mReactInstanceManager = RNAppManager.getInstance().getReactInstanceManager();
+                if (null != mReactInstanceManager) {
+                    mReactInstanceManager.showDevOptionsDialog();
+                }
             }
         });
     }
@@ -167,17 +135,15 @@ public class RNStageActivity extends Activity {
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
-
-            if (mCameraModuleReactPackage != null) {
-                mCameraModuleReactPackage.handleActivityResult(requestCode, resultCode, data);
-            }
+            RNAppManager.getInstance().handleActivityResult(requestCode, resultCode, data);
         }
     }
     @Override
     protected void onPause() {
         super.onPause();
 
-        if (mReactInstanceManager != null) {
+        ReactInstanceManager mReactInstanceManager = RNAppManager.getInstance().getReactInstanceManager();
+        if (null != mReactInstanceManager) {
             mReactInstanceManager.onHostPause(this);
         }
     }
@@ -186,7 +152,8 @@ public class RNStageActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        if (mReactInstanceManager != null) {
+        ReactInstanceManager mReactInstanceManager = RNAppManager.getInstance().getReactInstanceManager();
+        if (null != mReactInstanceManager) {
             mReactInstanceManager.onHostResume(this);
         }
     }
@@ -195,7 +162,8 @@ public class RNStageActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
 
-        if (mReactInstanceManager != null) {
+        ReactInstanceManager mReactInstanceManager = RNAppManager.getInstance().getReactInstanceManager();
+        if (null != mReactInstanceManager) {
             mReactInstanceManager.onHostDestroy(this);
         }
     }
@@ -203,7 +171,8 @@ public class RNStageActivity extends Activity {
     @Override
     public void onBackPressed() {
         // TODO
-//        if (mReactInstanceManager != null) {
+//        ReactInstanceManager mReactInstanceManager = RNAppManager.getInstance().getReactInstanceManager();
+//        if (null != mReactInstanceManager) {
 //            mReactInstanceManager.onBackPressed();
 //        } else {
         super.onBackPressed();
@@ -212,8 +181,11 @@ public class RNStageActivity extends Activity {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN && mReactInstanceManager != null) {
-            mReactInstanceManager.showDevOptionsDialog();
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            ReactInstanceManager mReactInstanceManager = RNAppManager.getInstance().getReactInstanceManager();
+            if (null != mReactInstanceManager) {
+                mReactInstanceManager.showDevOptionsDialog();
+            }
             return true;
         }
         return super.onKeyUp(keyCode, event);
