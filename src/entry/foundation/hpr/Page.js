@@ -12,9 +12,7 @@ import {
   View,
   WebView
 } from 'react-native';
-import {
-  Navigation
-} from 'component';
+import { Navigation } from 'component';
 import createInvoke from 'react-native-webview-invoke/native';
 
 const instructions = Platform.select({
@@ -263,12 +261,14 @@ return browser;
 })));
 `;
 
-export default class App extends Component {
+export default class Page extends Component {
   webview
   invoke = createInvoke(() => this.webview)
 
   constructor (props) {
     super(props);
+
+    console.log(props);
 
     this.state = {
       title: ''
@@ -291,7 +291,9 @@ export default class App extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Navigation title={this.state.title} />
+        <Navigation
+          pageKey={this.props.pageKey}
+          title={this.state.title} />
         <WebView
           ref={webview => this.webview = webview}
           source={{uri: this.props.startPage || 'about:blank'}}

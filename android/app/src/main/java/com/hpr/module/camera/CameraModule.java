@@ -7,6 +7,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.hpr.module.common.Constant;
+import com.hpr.util.HPRUtils;
 
 import java.util.HashMap;
 
@@ -28,15 +29,11 @@ public class CameraModule extends ReactContextBaseJavaModule {
         return "CameraModule";
     }
 
-    private int randomID () {
-        return (int) ((Math.random() * 9 + 1) * 100000);
-    }
-
     @ReactMethod
     public void QRCodeScanner(Promise promise) {
         Intent intent = new Intent(getCurrentActivity(), CameraCodeScannerActivity.class);
 
-        int callbackId = randomID();
+        int callbackId = HPRUtils.getInstance().randomID();
         Integer callbackIdNum = new Integer(callbackId);
 
         qrCodeCallbackMap.put(callbackIdNum, promise);

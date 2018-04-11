@@ -3,14 +3,14 @@
  */
 import { AppRegistry } from 'react-native';
 
-import HPRApp from 'entry/foundation/hpr/App';
-import EmptyApp from 'entry/foundation/empty/App';
-import ExampleHomeApp from 'entry/example/home/App';
+import HPRPage from 'entry/foundation/hpr/Page';
+import EmptyPage from 'entry/foundation/empty/Page';
+import ExampleHomePage from 'entry/example/home/Page';
 
 // 容器入口
-AppRegistry.registerComponent('HPRApp', () => HPRApp);
+AppRegistry.registerComponent('HPRPage', () => HPRPage);
 // 空页面，默认页
-AppRegistry.registerComponent('EmptyApp', () => EmptyApp);
+AppRegistry.registerComponent('EmptyPage', () => EmptyPage);
 
 // Example 入口主页，To Run Demo
-AppRegistry.registerComponent('ExampleHomeApp', () => ExampleHomeApp);
+AppRegistry.registerComponent('ExampleHomePage', () => ExampleHomePage);

@@ -1,5 +1,6 @@
 package com.hpr.core;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 
@@ -12,7 +13,9 @@ import com.hpr.module.camera.CameraModuleReactPackage;
 import com.hpr.module.navigation.NavigationModuleReactPackage;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by me2 on 2018/4/11.
@@ -23,6 +26,7 @@ public class RNAppManager {
 
     private Application application = null;
     private ReactInstanceManager reactInstanceManager = null;
+    private HashMap<Integer, Activity> reactActivityManager = null;
 
     private String bundleAssetsName;
     private String jsMainModulePath;
@@ -33,6 +37,8 @@ public class RNAppManager {
         // default bundle
         bundleAssetsName = "index.bundle";
         jsMainModulePath = "src/entry/index";
+
+        reactActivityManager = new HashMap<>();
     }
 
     public static RNAppManager getInstance() {
@@ -87,5 +93,17 @@ public class RNAppManager {
         if (null != mCameraModuleReactPackage) {
             mCameraModuleReactPackage.handleActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    public void addReactActivity(int pagekey, Activity activity) {
+        reactActivityManager.put(pagekey, activity);
+    }
+
+    public Activity getReactActivity(int pageKey) {
+        return reactActivityManager.get(pageKey);
+    }
+
+    public void removeReactActivity(int pageKey) {
+        reactActivityManager.remove(pageKey);
     }
 }

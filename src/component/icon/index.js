@@ -19,7 +19,7 @@ export const Icon = ({type, onPress}) =>
   </TouchableOpacity>
 
 Icon.propTypes = {
-  type: PropTypes.oneOf(['scan', 'close']),
+  type: PropTypes.oneOf(['scan', 'close']).isRequired,
   onPress: PropTypes.func
 };
 

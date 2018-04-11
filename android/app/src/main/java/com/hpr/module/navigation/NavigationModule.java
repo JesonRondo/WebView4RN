@@ -8,7 +8,9 @@ import android.os.Bundle;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.hpr.HPRActivity;
 import com.hpr.RNStageActivity;
+import com.hpr.core.RNAppManager;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -31,24 +33,21 @@ public class NavigationModule extends ReactContextBaseJavaModule {
 
     /**
      * 推出一个页面
-     * @param url 格式 rn://[AppName]?props1=props1value&... ，props 是可选参数，
+     * @param url 格式 rn://[PageName]?props1=props1value&... ，props 是可选参数，
      *            如果为 http || https 开头的链接，会转到 HPRApp 去打开
      */
     @ReactMethod
     public void push(String url) {
-        // 格式化 http 链接
         if (url.startsWith("http")) {
-            try {
-                String query = URLEncoder.encode(url, "utf-8");
-                url = "rn://HPRApp?startPage=" + query;
-            } catch (UnsupportedEncodingException e) {
-                // not support url
-                return;
+            // 打开 http 链接
+            Activity currentActivity = getCurrentActivity();
+            if (null != currentActivity) {
+                Intent intent = new Intent(currentActivity, HPRActivity.class);
+                intent.putExtra("startPage", url);
+                currentActivity.startActivity(intent);
             }
-        }
-
-        // 打开RN页面
-        if (url.startsWith("rn://")) {
+        } else if (url.startsWith("rn://")) {
+            // 打开 RN 页面
             Activity currentActivity = getCurrentActivity();
 
             if (null != currentActivity) {
@@ -58,7 +57,7 @@ public class NavigationModule extends ReactContextBaseJavaModule {
                 String appName = uri.getHost();
 
                 // AppName
-                intent.putExtra("AppName", appName);
+                intent.putExtra("PageName", appName);
 
                 // InitProps
                 Set<String> queryNames = uri.getQueryParameterNames();
@@ -87,11 +86,10 @@ public class NavigationModule extends ReactContextBaseJavaModule {
      * 关掉一个页面
      */
     @ReactMethod
-    public void pop() {
-        Activity currentActivity = getCurrentActivity();
-
-        if (null != currentActivity) {
-            currentActivity.finish();
+    public void pop(int pageKey) {
+        Activity selfActivity = RNAppManager.getInstance().getReactActivity(pageKey);
+        if (null != selfActivity) {
+            selfActivity.finish();
         }
     }
 }

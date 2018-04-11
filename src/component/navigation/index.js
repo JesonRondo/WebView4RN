@@ -27,12 +27,13 @@ export class Navigation extends Component {
   }
 
   closeWindow () {
-    HPR.Navigation.pop();
+    HPR.Navigation.pop(this.props.pageKey);
   }
 }
 
 Navigation.propTypes = {
-  title: PropTypes.string
+  pageKey: PropTypes.number.isRequired,
+  title: PropTypes.string.isRequired
 };
 
 const styles = StyleSheet.create({

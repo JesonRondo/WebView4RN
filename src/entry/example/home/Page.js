@@ -19,7 +19,7 @@ import {
 
 import HPR from 'bridge';
 
-export default class App extends Component {
+export default class Page extends Component {
 
   constructor(props) {
     super(props);

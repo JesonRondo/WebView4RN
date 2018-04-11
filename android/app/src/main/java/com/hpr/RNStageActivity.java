@@ -13,6 +13,7 @@ import android.webkit.WebView;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactRootView;
 import com.hpr.core.RNAppManager;
+import com.hpr.util.HPRUtils;
 
 /**
  * Created by me2 on 2018/4/9.
@@ -23,25 +24,35 @@ public class RNStageActivity extends Activity {
 
     public ReactRootView mReactRootView;
 
-    private String moduleName;
-    private Bundle initialProperties;
+    protected String moduleName;
+    protected Bundle initialProperties;
+
+    private int activityId;
 
     /**
      * intent 打开用，extra 需要传 AppName、InitProps
      */
     public RNStageActivity() {
+        activityId = HPRUtils.getInstance().randomID();
+
         moduleName = "EmptyApp";
-        initialProperties = null;
+        initialProperties = new Bundle();
     }
 
     /**
-     * 继承的方式打开用，如 Main Activity
+     * 继承的方式打开用，如 MainActivity、HPRActivity
      * @param appName
      * @param initialProps
      */
     public RNStageActivity(String appName, @Nullable Bundle initialProps) {
+        activityId = HPRUtils.getInstance().randomID();
+
         moduleName = appName;
-        initialProperties = initialProps;
+        if (null != initialProps) {
+            initialProperties = initialProps;
+        } else {
+            initialProperties = new Bundle();
+        }
     }
 
     /**
@@ -65,16 +76,16 @@ public class RNStageActivity extends Activity {
     /**
      * 解析参数
      */
-    private void parseParams() {
+    protected void parseParams() {
         Intent intent = getIntent();
 
-        String appName = intent.getStringExtra("AppName");
-        if (appName != null) {
+        String appName = intent.getStringExtra("PageName");
+        if (null != appName) {
             moduleName = appName;
         }
 
         Bundle initialProps = intent.getBundleExtra("InitProps");
-        if (initialProps != null) {
+        if (null != initialProps) {
             initialProperties = initialProps;
         }
     }
@@ -86,6 +97,8 @@ public class RNStageActivity extends Activity {
         if (null == RNAppManager.getInstance().getApplication()) {
             RNAppManager.getInstance().setApplication(getApplication());
         }
+
+        initialProperties.putInt("pageKey", activityId);
 
         mReactRootView = new ReactRootView(this);
         mReactRootView.startReactApplication(
@@ -114,6 +127,9 @@ public class RNStageActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Activity 压入 Map 中
+        RNAppManager.getInstance().addReactActivity(activityId, this);
 
         // 获取需要的权限
         getPermission();
@@ -166,6 +182,9 @@ public class RNStageActivity extends Activity {
         if (null != mReactInstanceManager) {
             mReactInstanceManager.onHostDestroy(this);
         }
+
+        // Activity 从 Map 中移除
+        RNAppManager.getInstance().removeReactActivity(activityId);
     }
 
     @Override
