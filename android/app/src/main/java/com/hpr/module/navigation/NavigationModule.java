@@ -1,4 +1,4 @@
-package com.hpr.module;
+package com.hpr.module.navigation;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -9,6 +9,8 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.hpr.RNStageActivity;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Set;
 
 /**
@@ -28,19 +30,19 @@ public class NavigationModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void push(String url) {
+        // 格式化 http 链接
         if (url.startsWith("http")) {
-            // 打开容器
-            Intent intent = new Intent(getCurrentActivity(), RNStageActivity.class);
+            try {
+                String query = URLEncoder.encode(url, "utf-8");
+                url = "rn://HPRApp?startPage=" + query;
+            } catch (UnsupportedEncodingException e) {
+                // not support url
+                return;
+            }
+        }
 
-            Bundle initProps = new Bundle();
-            initProps.putString("startPage", url);
-
-            intent.putExtra("AppName", "HPRApp");
-            intent.putExtra("InitProps", initProps);
-
-            getCurrentActivity().startActivity(intent);
-        } else if (url.startsWith("rn://")) {
-            // 打开其他RN页面
+        // 打开RN页面
+        if (url.startsWith("rn://")) {
             Intent intent = new Intent(getCurrentActivity(), RNStageActivity.class);
 
             Uri uri = Uri.parse(url);
@@ -64,6 +66,7 @@ public class NavigationModule extends ReactContextBaseJavaModule {
             }
             getCurrentActivity().startActivity(intent);
         } else {
+            // 无法识别的协议
             // do nothing
         }
     }

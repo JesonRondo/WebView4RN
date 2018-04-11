@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.hpr.module;
+package com.hpr.module.camera;
 
 import android.Manifest;
 import android.app.Activity;
@@ -38,10 +38,9 @@ import com.budiyev.android.codescanner.DecodeCallback;
 import com.budiyev.android.codescanner.ErrorCallback;
 import com.google.zxing.Result;
 import com.hpr.R;
+import com.hpr.module.common.Constant;
 
 public class CameraCodeScannerActivity extends Activity {
-    private static final int CAMERA_QRCODE_SCANNER_REQ_CODE = 55121;
-
     private static final int RC_PERMISSION = 10;
     private CodeScanner mCodeScanner;
     private boolean mPermissionGranted;
@@ -60,14 +59,14 @@ public class CameraCodeScannerActivity extends Activity {
         mCodeScanner.setDecodeCallback(new DecodeCallback() {
             @Override
             public void onDecoded(@NonNull Result result) {
-                resultForCode(1001, result.toString(), callbackId);
+                resultForCode(Constant.RESULT_OK, result.toString(), callbackId);
             }
         });
 
         mCodeScanner.setErrorCallback(new ErrorCallback() {
             @Override
             public void onError(@NonNull Exception error) {
-                resultForCode(443, error.toString(), callbackId);
+                resultForCode(Constant.RESULT_ERROR, error.toString(), callbackId);
             }
         });
 
@@ -110,6 +109,12 @@ public class CameraCodeScannerActivity extends Activity {
         super.onPause();
     }
 
+    @Override
+    public void onBackPressed() {
+        resultForCode(Constant.RESULT_CANCEL, "cancel", callbackId);
+        super.onBackPressed();
+    }
+
     /**
      * 返回结果
      * @param code
@@ -119,9 +124,8 @@ public class CameraCodeScannerActivity extends Activity {
     private void resultForCode (int code, String result, int callbackId) {
         Intent mIntent = new Intent();
         mIntent.putExtra("result", result);
-        mIntent.putExtra("code", code);
         mIntent.putExtra("callbackId", callbackId);
-        setResult(CAMERA_QRCODE_SCANNER_REQ_CODE, mIntent);
+        setResult(code, mIntent);
 
         finish();
     }

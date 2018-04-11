@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
         <activity android:name="com.hpr.RNStageActivity"></activity>
-        <activity android:name="com.hpr.module.CameraCodeScannerActivity"></activity>
+        <activity android:name="com.hpr.module.camera.CameraCodeScannerActivity"></activity>
     </application>
 
 </manifest>

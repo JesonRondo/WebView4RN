@@ -1,7 +1,4 @@
-package com.hpr.module;
-
-
-import android.content.Intent;
+package com.hpr.module.navigation;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
@@ -16,9 +13,7 @@ import java.util.List;
  * Created by me2 on 2018/4/10.
  */
 
-public class CameraModuleReactPackage implements ReactPackage {
-
-    private CameraModule mModuleInstance;
+public class NavigationModuleReactPackage implements ReactPackage {
 
     @Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
@@ -29,16 +24,10 @@ public class CameraModuleReactPackage implements ReactPackage {
     public List<NativeModule> createNativeModules(
             ReactApplicationContext reactContext) {
 
-        mModuleInstance = new CameraModule(reactContext);
-
         List<NativeModule> modules = new ArrayList<>();
 
-        modules.add(mModuleInstance);
+        modules.add(new NavigationModule(reactContext));
 
         return modules;
-    }
-
-    public boolean handleActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        return mModuleInstance.handleActivityResult(requestCode, resultCode, data);
     }
 }

@@ -16,8 +16,7 @@ import {
   TouchableOpacity
 } from 'react-native';
 
-import NavigationModule from '../../src/bridge/navigation';
-import CameraModule from '../../src/bridge/camera';
+import HPR from 'bridge';
 
 export default class App extends Component {
 
@@ -30,17 +29,15 @@ export default class App extends Component {
   }
 
   setURL(url) {
-    this.setState({
-      url
-    })
+    this.setState({ url })
   }
 
   openURL() {
-    NavigationModule.push(this.state.url);
+    HPR.Navigation.push(this.state.url);
   }
 
   openScaner() {
-    CameraModule
+    HPR.Camera
       .QRCodeScanner()
       .then(str => {
         this.setURL(str);
@@ -48,12 +45,6 @@ export default class App extends Component {
       .catch(e => {
         console.log(e);
       });
-  }
-
-  onUrlTextChange(text) {
-    this.setState({
-      url: text
-    })
   }
 
   render() {
@@ -67,7 +58,7 @@ export default class App extends Component {
               style={styles.input}
               placeholder={'wantna a url to open it!'}
               defaultValue={this.state.url}
-              onChangeText={this.onUrlTextChange.bind(this)} />
+              onChangeText={this.setURL.bind(this)} />
             <TouchableOpacity
               onPress={this.openScaner.bind(this)}>
               <Image style={styles.icon} source={require("./assets/scan.png")} />

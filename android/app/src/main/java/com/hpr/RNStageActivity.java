@@ -15,8 +15,8 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.ReactRootView;
 import com.facebook.react.common.LifecycleState;
 import com.facebook.react.shell.MainReactPackage;
-import com.hpr.module.CameraModuleReactPackage;
-import com.hpr.module.NavigationModuleReactPackage;
+import com.hpr.module.camera.CameraModuleReactPackage;
+import com.hpr.module.navigation.NavigationModuleReactPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -50,6 +50,11 @@ public class RNStageActivity extends Activity {
         initialProperties = null;
     }
 
+    /**
+     * 继承的方式打开用，如 Main Activity
+     * @param appName
+     * @param initialProps
+     */
     public RNStageActivity(String appName, @Nullable Bundle initialProps) {
         // default
         bundleAssetsName = "index.bundle";
@@ -57,10 +62,6 @@ public class RNStageActivity extends Activity {
 
         moduleName = appName;
         initialProperties = initialProps;
-    }
-
-    public void setInitialProperties(Bundle initialProperties) {
-        this.initialProperties = initialProperties;
     }
 
     /**

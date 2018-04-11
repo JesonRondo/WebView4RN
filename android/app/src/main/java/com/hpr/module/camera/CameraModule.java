@@ -1,4 +1,4 @@
-package com.hpr.module;
+package com.hpr.module.camera;
 
 import android.content.Intent;
 
@@ -6,6 +6,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.hpr.module.common.Constant;
 
 import java.util.HashMap;
 
@@ -14,7 +15,6 @@ import java.util.HashMap;
  */
 
 public class CameraModule extends ReactContextBaseJavaModule {
-
     private static final int CAMERA_QRCODE_SCANNER_REQ_CODE = 55121;
     private HashMap<Integer, Promise> qrCodeCallbackMap;
 
@@ -46,9 +46,8 @@ public class CameraModule extends ReactContextBaseJavaModule {
     }
 
     public boolean handleActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        if (resultCode == CAMERA_QRCODE_SCANNER_REQ_CODE) {
-            String text = data.getStringExtra("result");
-            int code = data.getIntExtra("code", 442);
+        if (requestCode == CAMERA_QRCODE_SCANNER_REQ_CODE) {
+            String result = data.getStringExtra("result");
             int callbackId = data.getIntExtra("callbackId", 0);
 
             if (callbackId == 0) {
@@ -60,10 +59,10 @@ public class CameraModule extends ReactContextBaseJavaModule {
             Promise promise = qrCodeCallbackMap.get(callbackIdNum);
 
             if (promise != null) {
-                if (code == 1001 && text != "") {
-                    promise.resolve(text);
+                if (resultCode == Constant.RESULT_OK) {
+                    promise.resolve(result);
                 } else {
-                    promise.reject("443", "no code");
+                    promise.reject(Integer.toString(resultCode), result);
                 }
 
                 qrCodeCallbackMap.remove(callbackIdNum);
