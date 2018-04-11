@@ -7,6 +7,7 @@
 import React, { Component } from 'react';
 import {
   Platform,
+  BackHandler,
   StyleSheet,
   Text,
   View,
@@ -14,6 +15,7 @@ import {
 } from 'react-native';
 import { Navigation } from 'component';
 import createInvoke from 'react-native-webview-invoke/native';
+import HPR from 'bridge';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
@@ -267,25 +269,21 @@ export default class Page extends Component {
 
   constructor (props) {
     super(props);
-
-    console.log(props);
-
     this.state = {
-      title: ''
+      title: '',
+      canGoBack: false
     };
-  }
-
-  webViewLoadStart() {
-    this.setTitle('Loading...')
-  }
-
-  setTitle (title) {
-    this.setState({ title });
   }
 
   componentDidMount() {
     this.invoke
       .define('setTitle', this.setTitle.bind(this))
+
+    BackHandler.addEventListener('hardwareBackPress', this.onBackAndroid);
+  }
+
+  componentWillUnmount() {
+    BackHandler.removeEventListener('hardwareBackPress', this.onBackAndroid);
   }
 
   render() {
@@ -298,12 +296,35 @@ export default class Page extends Component {
           ref={webview => this.webview = webview}
           source={{uri: this.props.startPage || 'about:blank'}}
           style={styles.content}
-          onLoadStart={this.webViewLoadStart.bind(this)}
           onMessage={this.invoke.listener}
+          onLoadStart={this.webViewLoadStart}
+          onNavigationStateChange={this.onNavigationStateChange}
           injectedJavaScript={`${invokeBrowserJSStr};var invoke = window.WebViewInvoke; var setTitle = invoke.bind('setTitle'); setTitle(document.title);`}
         />
       </View>
     );
+  }
+
+  webViewLoadStart = () => {
+    this.setTitle('Loading...');
+  }
+
+  setTitle(title) {
+    this.setState({ title });
+  }
+
+  onNavigationStateChange = (navState) => {
+    this.setState({
+      canGoBack: navState.canGoBack
+    });
+  }
+
+  onBackAndroid = () => {
+    if (this.state.canGoBack) {
+      this.webview.goBack();
+    } else {
+      HPR.Navigation.pop(this.props.pageKey);
+    }
   }
 }
 

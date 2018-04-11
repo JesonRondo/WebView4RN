@@ -28,12 +28,14 @@ public class RNStageActivity extends Activity {
     protected Bundle initialProperties;
 
     private int activityId;
+    protected boolean isCoverBack; // 是否接管返回键
 
     /**
      * intent 打开用，extra 需要传 AppName、InitProps
      */
     public RNStageActivity() {
         activityId = HPRUtils.getInstance().randomID();
+        isCoverBack = false;
 
         moduleName = "EmptyApp";
         initialProperties = new Bundle();
@@ -46,6 +48,7 @@ public class RNStageActivity extends Activity {
      */
     public RNStageActivity(String appName, @Nullable Bundle initialProps) {
         activityId = HPRUtils.getInstance().randomID();
+        isCoverBack = false;
 
         moduleName = appName;
         if (null != initialProps) {
@@ -189,13 +192,17 @@ public class RNStageActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        // TODO
-//        ReactInstanceManager mReactInstanceManager = RNAppManager.getInstance().getReactInstanceManager();
-//        if (null != mReactInstanceManager) {
-//            mReactInstanceManager.onBackPressed();
-//        } else {
-        super.onBackPressed();
-//        }
+        if (isCoverBack) {
+            // 接管返回键，则完全给 RN 来管理返回按键
+            // 比如 HRPActivity 里，需要管理 WebView 的返回，则代理掉
+            ReactInstanceManager mReactInstanceManager = RNAppManager.getInstance().getReactInstanceManager();
+            if (null != mReactInstanceManager) {
+                mReactInstanceManager.onBackPressed();
+            }
+        } else {
+            // 走系统默认返回，关闭 Activity or 退出程序
+            super.onBackPressed();
+        }
     }
 
     @Override

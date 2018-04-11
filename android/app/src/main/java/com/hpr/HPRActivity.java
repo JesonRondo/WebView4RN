@@ -10,6 +10,7 @@ import android.os.Bundle;
 public class HPRActivity extends RNStageActivity {
     public HPRActivity() {
         super("HPRPage", null);
+        isCoverBack = true; // 接管返回键
     }
 
     @Override
