@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
+    "build:plugin": "node script/pack-web-plugin",
     "test": "jest"
   },
   "dependencies": {
@@ -13,11 +14,16 @@
   },
   "devDependencies": {
     "babel": "^6.23.0",
-    "babel-plugin-module-resolver": "^3.1.1",
     "babel-jest": "22.4.3",
+    "babel-plugin-module-resolver": "^3.1.1",
     "babel-preset-react-native": "4.0.0",
+    "glob": "^7.1.2",
     "jest": "22.4.3",
-    "react-test-renderer": "16.3.1"
+    "react-test-renderer": "16.3.1",
+    "rollup": "^0.57.1",
+    "rollup-plugin-commonjs": "^9.1.0",
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-uglify": "^3.0.0"
   },
   "jest": {
     "preset": "react-native"

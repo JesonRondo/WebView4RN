@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { Icon } from 'component';
 import PropTypes from 'prop-types';
-import HPR from 'bridge';
+import HPR from 'plugin/rn';
 
 export class Navigation extends Component {
   render() {

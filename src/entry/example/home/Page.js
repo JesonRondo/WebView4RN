@@ -16,36 +16,15 @@ import {
 import {
   Icon
 } from 'component';
-
-import HPR from 'bridge';
+import HPR from 'plugin/rn';
 
 export default class Page extends Component {
-
   constructor(props) {
     super(props);
 
     this.state = {
       url: 'https://m.baidu.com'
     };
-  }
-
-  setURL(url) {
-    this.setState({ url })
-  }
-
-  openURL() {
-    HPR.Navigation.push(this.state.url);
-  }
-
-  openScaner() {
-    HPR.Camera
-      .QRCodeScanner()
-      .then(str => {
-        this.setURL(str);
-      })
-      .catch(e => {
-        console.log(e);
-      });
   }
 
   render() {
@@ -70,6 +49,25 @@ export default class Page extends Component {
           onPress={this.openURL.bind(this)} />
       </View>
     );
+  }
+
+  setURL(url) {
+    this.setState({ url })
+  }
+
+  openURL() {
+    HPR.Navigation.push(this.state.url);
+  }
+
+  openScaner() {
+    HPR.Camera
+      .QRCodeScanner()
+      .then(str => {
+        this.setURL(str);
+      })
+      .catch(e => {
+        console.log(e);
+      });
   }
 }
 
