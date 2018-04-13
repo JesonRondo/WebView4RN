@@ -9,6 +9,7 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.common.LifecycleState;
 import com.facebook.react.shell.MainReactPackage;
 import com.hpr.BuildConfig;
+import com.hpr.component.webview.ReactWebViewReactPackage;
 import com.hpr.module.camera.CameraModuleReactPackage;
 import com.hpr.module.navigation.NavigationModuleReactPackage;
 
@@ -76,6 +77,7 @@ public class RNAppManager {
 
         return Arrays.<ReactPackage>asList(
                 new MainReactPackage(),
+                new ReactWebViewReactPackage(),
                 new NavigationModuleReactPackage(),
                 mCameraModuleReactPackage
         );

@@ -61,7 +61,9 @@ Object.assign(hpr, ${pluginNormalName}FunsInvoke);
   });
 
   code += `
-window.hpr = hpr;
+if (typeof window === 'object' && !window.hpr) {
+  window.hpr = hpr;
+}
   `;
 
   exec(`mkdir -p ${tmpPath}`);
