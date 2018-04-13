@@ -10,13 +10,14 @@ const images = new Map();
 images.set('scan', require('./assets/scan.png'));
 images.set('close', require('./assets/close.png'));
 
-export const Icon = ({type, onPress}) => 
+export const Icon = ({type, onPress}) => (
   <TouchableOpacity
     onPress={onPress}>
     <Image
       style={styles.icon}
       source={images.get(type)} />
   </TouchableOpacity>
+);
 
 Icon.propTypes = {
   type: PropTypes.oneOf(['scan', 'close']).isRequired,

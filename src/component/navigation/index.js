@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#fff',
     height: 48
   },
   headerTxt: {
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   },
   split: {
     width: 1 / PixelRatio.get(),
-    height: 26,
+    height: 24,
     backgroundColor: '#ccc'
   }
 });

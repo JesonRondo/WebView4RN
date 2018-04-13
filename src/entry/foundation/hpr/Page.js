@@ -13,7 +13,10 @@ import {
   View,
   WebView
 } from 'react-native';
-import { Navigation } from 'component';
+import {
+  Navigation,
+  ProcessBar
+} from 'component';
 import HPR from 'plugin/rn';
 import createInvoke from 'react-native-webview-invoke/native';
 import browserInvoke, { invokePlugins } from 'plugin/web';
@@ -27,6 +30,7 @@ export default class Page extends Component {
     super(props);
     this.state = {
       title: '',
+      isLoading: false,
       canGoBack: false
     };
   }
@@ -34,11 +38,12 @@ export default class Page extends Component {
   componentDidMount() {
     // 注入 plugin 中定义的方法
     invokePlugins.install(this);
-
+    // 监听 Android 物理返回键
     BackHandler.addEventListener('hardwareBackPress', this.onBackAndroid);
   }
 
   componentWillUnmount() {
+    // 取消监听 Android 物理返回键
     BackHandler.removeEventListener('hardwareBackPress', this.onBackAndroid);
   }
 
@@ -48,12 +53,14 @@ export default class Page extends Component {
         <Navigation
           pageKey={this.props.pageKey}
           title={this.state.title} />
+        <ProcessBar processing={this.state.isLoading} />
         <WebView
           ref={webview => this.webview = webview}
           source={{uri: this.props.startPage || 'about:blank'}}
           style={styles.content}
+          onLoadStart={this.onLoadStart}
+          onLoadEnd={this.onLoadEnd}
           onMessage={this.invoke.listener}
-          onLoadStart={this.webViewLoadStart}
           onNavigationStateChange={this.onNavigationStateChange}
           injectedJavaScript={`${browserInvoke};hpr.setNavigationBarTitle({title: document.title});setTimeout(function () {hpr.pop();}, 3000)`}
         />
@@ -61,8 +68,17 @@ export default class Page extends Component {
     );
   }
 
-  webViewLoadStart = () => {
-    this.setState({ title: 'Loading...' });
+  onLoadStart = () => {
+    this.setState({
+      isLoading: true
+    });
+  }
+
+  onLoadEnd = () => {
+    this.setState({
+      isLoading: false
+    });
+    clearInterval(this.timer);
   }
 
   onNavigationStateChange = (navState) => {
@@ -70,7 +86,6 @@ export default class Page extends Component {
       canGoBack: navState.canGoBack
     });
   }
-
   onBackAndroid = () => {
     if (this.state.canGoBack) {
       this.webview.goBack();

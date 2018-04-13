@@ -18,6 +18,10 @@ function cleanTmp() {
   exec(`rm -rf ${tmpPath}`);
 }
 
+function normalPluginName(str) {
+  return str.replace(/\-/img, '_');
+}
+
 async function readPluginsName() {
   return new Promise(function (resolve, reject) {
     glob('*.js', {
@@ -37,7 +41,7 @@ function generateEntry(plugins) {
   let code = `import invoke from 'react-native-webview-invoke/dist/browser.common';\n`;
 
   plugins.forEach(plugin => {
-    code += `import * as ${plugin} from '${path.join(pluginPath, plugin)}';\n`;
+    code += `import * as ${normalPluginName(plugin)} from '${path.join(pluginPath, plugin)}';\n`;
   });
 
   code += `
@@ -45,13 +49,14 @@ const hpr = {};
   `;
 
   plugins.forEach(plugin => {
+    const pluginNormalName = normalPluginName(plugin);
     code += `
 // ${plugin}
-const ${plugin}FunsInvoke = {};
-for (let key in ${plugin}) {
-  ${plugin}FunsInvoke[key] = invoke.bind(key);
+const ${pluginNormalName}FunsInvoke = {};
+for (let key in ${pluginNormalName}) {
+  ${pluginNormalName}FunsInvoke[key] = invoke.bind(key);
 }
-Object.assign(hpr, ${plugin}FunsInvoke);
+Object.assign(hpr, ${pluginNormalName}FunsInvoke);
     `;
   });
 
@@ -84,7 +89,7 @@ async function buildWebInvoke() {
 function buildPluginInstaller(plugins) {
   let code = '';
   plugins.forEach(plugin => {
-    code += `import * as ${plugin} from 'plugin/web/src/${plugin}';\n`;
+    code += `import * as ${normalPluginName(plugin)} from 'plugin/web/src/${plugin}';\n`;
   });
   code += `
 export const invokePlugins = {
@@ -93,8 +98,8 @@ export const invokePlugins = {
   +
   plugins.map(plugin => {
     return `
-    for (let key in ${plugin}) {
-      const bindPluginFn = ${plugin}[key].bind(context);
+    for (let key in ${normalPluginName(plugin)}) {
+      const bindPluginFn = ${normalPluginName(plugin)}[key].bind(context);
       context.invoke.define(key, bindPluginFn);
     }
   `
