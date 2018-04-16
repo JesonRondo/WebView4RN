@@ -11,15 +11,13 @@ import PropTypes from 'prop-types';
 export class ProgressBar extends Component {
   constructor(props) {
     super(props);
-    
-    const { width } = Dimensions.get('window');
 
     this.state = {
-      progress: props.progress,
+      status: 'complete',
       moveProgress: false,
       needToResetProgress: false,
       progressOpacity: new Animated.Value(0),
-      percentWithWidth: new Animated.Value(0)
+      percentWithWidth: new Animated.Value(this.percentNumToAnimateNum(1))
     };
   }
 
@@ -27,31 +25,27 @@ export class ProgressBar extends Component {
     let moveProgress = false;
     let needToResetProgress = false;
     
-    if (nextProps.progress != prevState.progress) {
+    // 进度状态有更新
+    if (nextProps.status != prevState.status) {
       // 是否需要更新进度条
       moveProgress = true;
+
       // 是否需要重置进度
-      // if (prevState.progress < 0.0000000001 || prevState.progress > 0.9999999999) {
-      if (prevState.progress > nextProps.progress) {
+      if (nextProps.status === 'loading') {
         needToResetProgress = true;
       }
     }
 
     return {
-      progress: nextProps.progress,
+      status: nextProps.status,
       moveProgress,
       needToResetProgress
     };
   }
 
   componentDidUpdate() {
-    if (this.state.moveProgress) {
-      this.setProgressTo(this.state.progress, this.state.needToResetProgress);
-      this.setState({
-        moveProgress: false,
-        needToResetProgress: false
-      });
-    }
+    // 解析进度条状态参数
+    this.progressMovingParse();
   }
 
   render() {
@@ -71,56 +65,81 @@ export class ProgressBar extends Component {
     );
   }
 
-  setProgressTo(progress, isNeedReset = false) {
+  /**
+   * 将进度转化为动画的长度
+   * @param percent 进度的取值为 [0 ~ 1]
+   */
+  percentNumToAnimateNum(percent) {
     const { width } = Dimensions.get('window');
+    //（进度 - 1）* 完整进度条宽度
+    return (percent - 1) * width;
+  }
 
-    if (isNeedReset) {
-      this.state.progressOpacity.setValue(1);
-      this.state.percentWithWidth.setValue((0 - 1) * width);
+  // 解析移动参数，如果需要移动则调用移动方法
+  progressMovingParse() {
+    const { moveProgress, needToResetProgress } = this.state;
+    if (moveProgress) { // 需要移动进度条
+      if (needToResetProgress) { // 需要从头开始动画
+        this.startProgressMoving();
+      } else {
+        this.finishProgressMoving();
+      }
+
+      this.setState({
+        moveProgress: false,
+        needToResetProgress: false
+      });
     }
+  }
 
-    // 结束
-    if (progress > 0.9999999999) {
-      Animated.sequence([
-        Animated.timing(
-          this.state.percentWithWidth,
-          {
-            toValue: 0,
-            duration: 200,
-            easing: Easing.in(Easing.quad),
-            useNativeDriver: true
-          }
-        ),
-        Animated.timing(
-          this.state.progressOpacity,
-          {
-            toValue: 0,
-            duration: 200,
-            useNativeDriver: true
-          }
-        ),
-      ]).start();
-    } else { // 继续加载
+  // 开始加载动画
+  startProgressMoving() {
+    this.state.progressOpacity.setValue(1);
+    this.state.percentWithWidth.setValue(this.percentNumToAnimateNum(0));
+
+    // 用 15s 的时间动到 0.95 的位置
+    Animated.timing(
+      this.state.percentWithWidth,
+      {
+        toValue: this.percentNumToAnimateNum(0.95),
+        duration: 15 * 1000,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true
+      }
+    ).start();
+  }
+
+  // 结束加载动画
+  finishProgressMoving() {
+    Animated.sequence([
       Animated.timing(
         this.state.percentWithWidth,
         {
-          toValue: (progress - 1) * width,
+          toValue: this.percentNumToAnimateNum(1),
           duration: 200,
           easing: Easing.in(Easing.quad),
           useNativeDriver: true
         }
-      ).start();
-    }
+      ),
+      Animated.timing(
+        this.state.progressOpacity,
+        {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true
+        }
+      ),
+    ]).start();
   }
 }
 
 ProgressBar.defaultProps = {
-  progress: 100,
+  status: 'complete',
   color: '#2c9adb'
 };
 
 ProgressBar.propTypes = {
-  progress: PropTypes.number,
+  progress: PropTypes.oneOf(['loading', 'complete']),
   color: PropTypes.string
 };
 

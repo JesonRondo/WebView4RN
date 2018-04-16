@@ -308,6 +308,7 @@ class WebView extends React.Component {
         automaticallyAdjustContentInsets={this.props.automaticallyAdjustContentInsets}
         onContentSizeChange={this.props.onContentSizeChange}
         onLoadingStart={this.onLoadingStart}
+        onLoadResource={this.onLoadResource}
         onReceivedTitle={this.onReceivedTitle}
         onProgress={this.onProgress}
         onLoadingFinish={this.onLoadingFinish}
@@ -406,8 +407,14 @@ class WebView extends React.Component {
     this.updateNavigationState(event);
   };
 
+  onLoadResource = (event) => {
+    const onLoadResource = this.props.onLoadResource;
+    onLoadResource && onLoadResource(event.nativeEvent.data);
+  }
+
   onReceivedTitle = (event) => {
-    this.props.onReceivedTitle && this.props.onReceivedTitle(event.nativeEvent.data);
+    const onReceivedTitle = this.props.onReceivedTitle;
+    onReceivedTitle && onReceivedTitle(event.nativeEvent.data);
   }
 
   onProgress = (event) => {

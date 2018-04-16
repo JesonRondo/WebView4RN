@@ -56,6 +56,7 @@ import com.facebook.react.views.webview.events.TopLoadingErrorEvent;
 import com.facebook.react.views.webview.events.TopLoadingFinishEvent;
 import com.facebook.react.views.webview.events.TopLoadingStartEvent;
 import com.facebook.react.views.webview.events.TopMessageEvent;
+import com.hpr.component.webview.events.LoadResourceMessageEvent;
 import com.hpr.component.webview.events.ProgressMessageEvent;
 import com.hpr.component.webview.events.ReceivedTitleMessageEvent;
 
@@ -135,6 +136,12 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
                     new TopLoadingStartEvent(
                             webView.getId(),
                             createWebViewEvent(webView, url)));
+        }
+
+        @Override
+        public void onLoadResource(WebView view, String url) {
+            dispatchEvent(view, new LoadResourceMessageEvent(view.getId(), url));
+            super.onLoadResource(view, url);
         }
 
         @Override
@@ -649,6 +656,7 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
     @Override
     public Map<String, Object> getExportedCustomDirectEventTypeConstants() {
         return MapBuilder.<String, Object>builder()
+                .put("loadResourceMessage", MapBuilder.of("registrationName", "onLoadResource"))
                 .put("progressMessage", MapBuilder.of("registrationName", "onProgress"))
                 .put("receivedTitleMessage", MapBuilder.of("registrationName", "onReceivedTitle"))
                 .build();

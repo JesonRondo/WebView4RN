@@ -11,7 +11,8 @@ import {
   Text,
   View,
   Button,
-  TextInput
+  TextInput,
+  AsyncStorage
 } from 'react-native';
 import {
   Icon
@@ -23,8 +24,12 @@ export default class Page extends Component {
     super(props);
 
     this.state = {
-      url: 'https://m.baidu.com'
+      url: ''
     };
+  }
+
+  componentDidMount() {
+    this.setDefaultUrl();
   }
 
   render() {
@@ -51,12 +56,34 @@ export default class Page extends Component {
     );
   }
 
+  async setDefaultUrl() {
+    const defaultUrl = 'https://m.baidu.com';
+    try {
+      let url = await AsyncStorage.getItem('@ExampleUrlStore:openUrl');
+      if (url) {
+        this.setURL(url);
+      } else {
+        this.setURL(defaultUrl);
+      }
+    } catch(err) {
+      this.setURL(defaultUrl);
+    }
+  }
+
   setURL(url) {
     this.setState({ url })
   }
 
-  openURL() {
-    HPR.Navigation.push(this.state.url);
+  async openURL() {
+    const { url } = this.state;
+    if (url) {
+      HPR.Navigation.push(url);
+      try {
+        await AsyncStorage.setItem('@ExampleUrlStore:openUrl', url);
+      } catch(err) {
+        // save error, do noting
+      }
+    }
   }
 
   openScaner() {
