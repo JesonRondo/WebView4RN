@@ -94,6 +94,8 @@ export default class Page extends Component {
         isReady: true,
         isLoading: false
       });
+      // call page start
+      this.onPageStart();
     } else {
       this.setState({
         isLoading: false
