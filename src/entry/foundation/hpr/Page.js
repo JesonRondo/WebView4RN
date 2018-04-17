@@ -25,14 +25,22 @@ export default class Page extends Component {
   webview
   HPR = HPR
   invoke = createInvoke(() => this.webview)
-  PAGE_ONLOAD_EVENT = 'hrp::pageonload'
 
   constructor (props) {
     super(props);
     this.state = {
+      // 页面标题，onReceivedTitle 事件会保持修改
       title: '',
+      // 页面是否 isReady，默认已 ready
+      // onLoadStart 时设置为 false
+      // onLoadResource 第一个非当前页面请求的资源文件时设置为 true
+      // 如果页面没有 onLoadResource 非当前页面请求，则 onLoadEnd 时设置为 true
+      isReady: true,
+      // 标示当前是否是加载中的状态，onLoadStart 时会设定为 true，onLoadEnd 时会设定为 false
       isLoading: false,
+      // 标示当前 webview 的 history 栈是否可以返回
       canGoBack: false,
+      // 当前页面链接，onNavigationStateChange 事件会同步更新
       currentUrl: 'about:blank'
     };
   }
@@ -74,28 +82,41 @@ export default class Page extends Component {
 
   // 前端路由的有些情况，onLoadStart 不会调，但是会调 onLoadEnd
   onLoadStart = () => {
-    console.log('加载开始');
     this.setState({
+      isReady: false,
       isLoading: true
     });
   }
 
-  onLoadResource = resourceUrl => {
-    console.log('   ' + (this.state.isLoading ? 'loading': 'loaded') + ' @onLoadResource: ' + resourceUrl);
-  }
-
   onLoadEnd = () => {
-    console.log('加载结束');
-    this.setState({
-      isLoading: false
-    });
+    if (!this.state.isReady) {
+      this.setState({
+        isReady: true,
+        isLoading: false
+      });
+    } else {
+      this.setState({
+        isLoading: false
+      });
+    }
   }
 
-  // TODO
-  onPageReady = () => {
-    console.log('on page ready');
+  onLoadResource = resourceUrl => {
+    const { isLoading, isReady, currentUrl } = this.state;
+
+    if (isLoading && !isReady && currentUrl != resourceUrl) {
+      this.setState({
+        isReady: true
+      });
+      // call page start
+      this.onPageStart();
+    }
+  }
+
+  // 页面开始事件，可以更早的做 JS 注入
+  onPageStart = () => {
     // 注入 invoke
-    // this.webview.injectJavaScript(browserInvoke);
+    this.webview.injectJavaScript(browserInvoke);
   }
 
   onReceivedTitle = title => {
@@ -108,9 +129,11 @@ export default class Page extends Component {
    */
   onProgress = progress => {}
 
+  /**
+   * 更新 state
+   */
   onNavigationStateChange = navState => {
     const { canGoBack, url } = navState;
-
     this.setState({
       canGoBack,
       currentUrl: url
