@@ -12,6 +12,7 @@ import android.webkit.WebView;
 
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactRootView;
+import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler;
 import com.hpr.core.RNAppManager;
 import com.hpr.util.HPRUtils;
 
@@ -19,7 +20,7 @@ import com.hpr.util.HPRUtils;
  * Created by me2 on 2018/4/9.
  */
 
-public class RNStageActivity extends Activity {
+public class RNStageActivity extends Activity implements DefaultHardwareBackBtnHandler {
     private static final int OVERLAY_PERMISSION_REQ_CODE = 1235;
 
     public ReactRootView mReactRootView;
@@ -28,14 +29,12 @@ public class RNStageActivity extends Activity {
     protected Bundle initialProperties;
 
     private int activityId;
-    protected boolean isCoverBack; // 是否接管返回键
 
     /**
      * intent 打开用，extra 需要传 AppName、InitProps
      */
     public RNStageActivity() {
         activityId = HPRUtils.getInstance().randomID();
-        isCoverBack = false;
 
         moduleName = "EmptyApp";
         initialProperties = new Bundle();
@@ -48,7 +47,6 @@ public class RNStageActivity extends Activity {
      */
     public RNStageActivity(String appName, @Nullable Bundle initialProps) {
         activityId = HPRUtils.getInstance().randomID();
-        isCoverBack = false;
 
         moduleName = appName;
         if (null != initialProps) {
@@ -173,7 +171,7 @@ public class RNStageActivity extends Activity {
 
         ReactInstanceManager mReactInstanceManager = RNAppManager.getInstance().getReactInstanceManager();
         if (null != mReactInstanceManager) {
-            mReactInstanceManager.onHostResume(this);
+            mReactInstanceManager.onHostResume(this, this);
         }
     }
 
@@ -188,21 +186,25 @@ public class RNStageActivity extends Activity {
 
         // Activity 从 Map 中移除
         RNAppManager.getInstance().removeReactActivity(activityId);
+
+        if (null != mReactRootView) {
+            mReactRootView.unmountReactApplication();
+        }
     }
 
     @Override
     public void onBackPressed() {
-        if (isCoverBack) {
-            // 接管返回键，则完全给 RN 来管理返回按键
-            // 比如 HRPActivity 里，需要管理 WebView 的返回，则代理掉
-            ReactInstanceManager mReactInstanceManager = RNAppManager.getInstance().getReactInstanceManager();
-            if (null != mReactInstanceManager) {
-                mReactInstanceManager.onBackPressed();
-            }
+        ReactInstanceManager mReactInstanceManager = RNAppManager.getInstance().getReactInstanceManager();
+        if (null != mReactInstanceManager) {
+            mReactInstanceManager.onBackPressed();
         } else {
-            // 走系统默认返回，关闭 Activity or 退出程序
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public void invokeDefaultOnBackPressed() {
+        super.onBackPressed();
     }
 
     @Override

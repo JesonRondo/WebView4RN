@@ -16,6 +16,7 @@ import {
   Navigation,
   ProgressBar,
   AndroidWebView,
+  Blank
 } from 'component';
 import HPR from 'plugin/rn';
 import createInvoke from 'react-native-webview-invoke/native';
@@ -68,6 +69,7 @@ export default class Page extends Component {
           ref={webview => this.webview = webview}
           source={{uri: this.props.startPage || 'about:blank'}}
           style={styles.content}
+          mixedContentMode="always"
           onLoadStart={this.onLoadStart}
           onLoadResource={this.onLoadResource}
           onLoadEnd={this.onLoadEnd}
@@ -75,6 +77,13 @@ export default class Page extends Component {
           onReceivedTitle={this.onReceivedTitle}
           onProgress={this.onProgress}
           onNavigationStateChange={this.onNavigationStateChange}
+          renderError={() => {
+            return (
+              <Blank
+                message="请检查网络，点击重试"
+                onPress={this.retry.bind(this)} />
+            )
+          }}
         />
       </View>
     );
@@ -122,12 +131,16 @@ export default class Page extends Component {
   }
 
   onReceivedTitle = title => {
+    if (title === 'about:blank') {
+      title = '';
+    }
+
     // 标题变化
     this.setState({ title });
   }
 
   /**
-   * TODO 加载进度
+   * TODO 加载进度，还没用上
    */
   onProgress = progress => {}
 
@@ -142,12 +155,19 @@ export default class Page extends Component {
     });
   }
 
+  // Android 返回键
   onBackAndroid = () => {
     if (this.state.canGoBack) {
       this.webview.goBack();
     } else {
       HPR.Navigation.pop(this.props.pageKey);
     }
+    return true;
+  }
+
+  // 重试
+  retry () {
+    this.webview.injectJavaScript('history.back();');
   }
 }
 

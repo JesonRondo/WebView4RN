@@ -22,6 +22,7 @@ import android.graphics.Picture;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.webkit.ConsoleMessage;
 import android.webkit.GeolocationPermissions;
@@ -128,6 +129,8 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
 
         @Override
         public void onPageStarted(WebView webView, String url, Bitmap favicon) {
+            webView.setVisibility(View.VISIBLE);
+
             super.onPageStarted(webView, url, favicon);
             mLastLoadFailed = false;
 
@@ -180,6 +183,14 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
                 int errorCode,
                 String description,
                 String failingUrl) {
+
+            // 加载空白页面，为了取消系统默认错误页
+            webView.setVisibility(View.INVISIBLE);
+            try {
+                webView.stopLoading();
+            } catch (Exception e) { }
+            webView.loadUrl(BLANK_URL);
+
             super.onReceivedError(webView, errorCode, description, failingUrl);
             mLastLoadFailed = true;
 

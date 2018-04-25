@@ -83,10 +83,21 @@ public class NavigationModule extends ReactContextBaseJavaModule {
     }
 
     /**
-     * 关掉一个页面
+     * 关掉一个页面，以前页面是激活状态才会关闭，即为最顶层才关闭
      */
     @ReactMethod
     public void pop(int pageKey) {
+        Activity selfActivity = RNAppManager.getInstance().getReactActivity(pageKey);
+        if (null != selfActivity && getCurrentActivity() == selfActivity) {
+            selfActivity.finish();
+        }
+    }
+
+    /**
+     * 强制关掉一个页面，不论当前页面是否是激活状态
+     */
+    @ReactMethod
+    public void focusPop(int pageKey) {
         Activity selfActivity = RNAppManager.getInstance().getReactActivity(pageKey);
         if (null != selfActivity) {
             selfActivity.finish();
