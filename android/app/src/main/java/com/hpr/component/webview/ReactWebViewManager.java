@@ -24,15 +24,16 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.webkit.ConsoleMessage;
-import android.webkit.GeolocationPermissions;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import com.tencent.smtt.export.external.interfaces.ConsoleMessage;
+import com.tencent.smtt.export.external.interfaces.GeolocationPermissionsCallback;
+import com.tencent.smtt.sdk.WebChromeClient;
+import com.tencent.smtt.sdk.WebView;
+import com.tencent.smtt.sdk.WebViewClient;
 import android.webkit.JavascriptInterface;
-import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
-import android.webkit.CookieManager;
+
+import com.tencent.smtt.sdk.ValueCallback;
+import com.tencent.smtt.sdk.CookieManager;
 
 import com.facebook.common.logging.FLog;
 import com.facebook.react.common.ReactConstants;
@@ -129,8 +130,6 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
 
         @Override
         public void onPageStarted(WebView webView, String url, Bitmap favicon) {
-            webView.setVisibility(View.VISIBLE);
-
             super.onPageStarted(webView, url, favicon);
             mLastLoadFailed = false;
 
@@ -183,9 +182,7 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
                 int errorCode,
                 String description,
                 String failingUrl) {
-
             // 加载空白页面，为了取消系统默认错误页
-            webView.setVisibility(View.INVISIBLE);
             try {
                 webView.stopLoading();
             } catch (Exception e) { }
@@ -403,9 +400,15 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
             }
 
             @Override
-            public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+            public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissionsCallback callback) {
                 callback.invoke(origin, true, false);
             }
+
+            //TODO http://x5.tencent.com/tbs/guide/sdkInit.html
+            //TODO 第四步，Crash 上报
+            //TODO 第六步，cookie 同步
+            //TODO 第七步，视频
+            //TODO 第八步，输入法
         });
         reactContext.addLifecycleEventListener(webView);
         mWebViewConfig.configWebView(webView);
@@ -648,7 +651,7 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
                             webView,
                             new ContentSizeChangeEvent(
                                     webView.getId(),
-                                    webView.getWidth(),
+                                    webView.getView().getWidth(),
                                     webView.getContentHeight()));
                 }
             };

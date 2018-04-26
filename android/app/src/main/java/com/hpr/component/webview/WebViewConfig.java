@@ -7,7 +7,7 @@
 
 package com.hpr.component.webview;
 
-import android.webkit.WebView;
+import com.tencent.smtt.sdk.WebView;
 
 /**
  * Implement this interface in order to config your {@link WebView}. An instance of that
