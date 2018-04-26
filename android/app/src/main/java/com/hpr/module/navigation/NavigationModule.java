@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.hpr.HPRActivity;
 import com.hpr.RNStageActivity;
 import com.hpr.core.RNAppManager;
+import com.hpr.module.common.Constant;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -84,6 +86,7 @@ public class NavigationModule extends ReactContextBaseJavaModule {
 
     /**
      * 关掉一个页面，以前页面是激活状态才会关闭，即为最顶层才关闭
+     * @param pageKey 页面id
      */
     @ReactMethod
     public void pop(int pageKey) {
@@ -95,12 +98,34 @@ public class NavigationModule extends ReactContextBaseJavaModule {
 
     /**
      * 强制关掉一个页面，不论当前页面是否是激活状态
+     * @param pageKey 页面id
      */
     @ReactMethod
     public void focusPop(int pageKey) {
         Activity selfActivity = RNAppManager.getInstance().getReactActivity(pageKey);
         if (null != selfActivity) {
             selfActivity.finish();
+        }
+    }
+
+    /**
+     * 是否是当前页面
+     * @param pageKey 页面id
+     */
+    @ReactMethod
+    public void isActived(int pageKey, Promise promise) {
+        Activity selfActivity = RNAppManager.getInstance().getReactActivity(pageKey);
+        if (null != selfActivity) {
+            if (getCurrentActivity() == selfActivity) {
+                // return true
+                promise.resolve(true);
+            } else {
+                // return false
+                promise.resolve(false);
+            }
+        } else {
+            // 错误
+            promise.reject(Integer.toString(Constant.RESULT_ERROR), "pageKey not exist!");
         }
     }
 }

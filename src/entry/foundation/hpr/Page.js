@@ -157,11 +157,21 @@ export default class Page extends Component {
 
   // Android 返回键
   onBackAndroid = () => {
-    if (this.state.canGoBack) {
-      this.webview.goBack();
-    } else {
-      HPR.Navigation.pop(this.props.pageKey);
-    }
+    // 只针对当前活动的 Activity
+    HPR.Navigation
+      .isActived(this.props.pageKey)
+      .then(() => {
+        if (this.state.canGoBack) {
+          this.webview.goBack();
+        } else {
+          HPR.Navigation.pop(this.props.pageKey)
+        }
+      })
+      .catch(e => {
+        // do nothing
+      });
+
+    // 禁用默认返回
     return true;
   }
 
